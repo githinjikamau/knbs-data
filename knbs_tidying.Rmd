@@ -1,0 +1,139 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r load libraries}
+library(tidyverse)
+library(tabulizer)
+```
+
+```{r}
+# Extract table on page
+
+file_location <- "./census reports/VOLUME 1 KPHC 2019.pdf"
+population_sex_county <- extract_areas(file = file_location, pages = 17, guess = FALSE)
+
+# population_by_sex_county <- extract_areas(file = file_location, pages = 17, guess = FALSE)
+```
+
+```{r}
+# convert to a data.frame
+population_by_sex_county <- as.data.frame(population_sex_county[[1]])
+
+# remove the endless ....
+population_by_sex_county$V1 <- str_replace(string = population_by_sex_county$V1, pattern = "\\.{2,}", replacement = ";")
+
+population_by_sex_county <- separate(data = population_by_sex_county, col = V1, into = c("County","Male"), sep = ";")
+
+population_by_sex_county$Male <- str_trim(string = population_by_sex_county$Male, side = "both")
+
+population_by_sex_county <- population_by_sex_county %>% 
+                            filter(!is.na(Male)) %>% 
+                            select(-V2) %>% 
+                            rename(Female = V3, Intersex = V4, Total = V5)
+
+```
+
+
+```{r}
+# write to csv
+
+write_csv(x = population_by_sex_county, path = ".\\tidy data\\population_by_sex_county.csv")
+```
+
+### Volume IV Data
+
+```{r}
+file_location1 <- "./census reports/VOLUME IV KPHC 2019.pdf"
+pages <- c(57:87)
+population_school <- extract_tables(file = file_location1, pages = pages)
+```
+
+```{r}
+# remove the 1:5 rows of each of the list elements
+population_school_df <- map_df(.x = population_school, .f = ~slice(as.data.frame(.x, stringsAsFactors = F), -c(1:5)))
+
+# get the column names
+column_names <- population_school[[1]] %>% .[3,]
+column_names[8] <- "adult_basic_education"
+column_names[6] <- "tvet"
+
+# set the column names and tidy the case
+names(population_school_df) <- column_names
+population_school_df <- janitor::clean_names(population_school_df)
+
+# replace all the dashes which represent missing values with NA
+population_school_df <- map_df(.x = population_school_df, ~str_replace(string = ., pattern = "-", NA_character_)) 
+```
+
+Next steps would be to scrape the reference table of the counties and subcounties so that one can use joins to separate the counties and sub-counties
+
+```{r eval=F}
+# Save the data set for now
+write_csv(x = population_school_df, path = ".\\tidy data\\t2.3_population_currently_attending_school.csv")
+```
+
+## Scrape table 
+
+```{r}
+pages <- c(438:444)
+population_mobile_ownership <- extract_tables(file = file_location1, pages = pages)
+```
+
+```{r}
+population_mobile_ownership_df <- map_df(.x = population_mobile_ownership, .f = ~slice(as.data.frame(.x, stringsAsFactors = F), -c(1,2)))
+# the first two rows have additional white space. Remove the additional white space
+population_mobile_ownership_df$V2 <- str_replace(string = population_mobile_ownership_df$V2, pattern = "\\s{2}", replacement = "" )
+# split the column
+population_mobile_ownership_df <- separate(population_mobile_ownership_df, col = V2, into = c("Total","Male","Female"), sep = " ")
+# split the column
+population_mobile_ownership_df <- separate(population_mobile_ownership_df, col = V5, into = c("male2","per_cent"), sep = "\\s")
+#column names
+population_mobile_ownership_df <- rename(population_mobile_ownership_df, "county/sub-county" = V1, "total2" = V3, 
+                                         "per_cent_total" = V4, "per_cent_male" = `per_cent`, "female2" = V6, 
+                                         "per_cent_female" = V7)
+
+```
+
+```{r eval=FALSE}
+# Convert from wide to long
+column_names <- colnames(population_mobile_ownership_df)
+column_names[2:4] <- glue::glue("{column_names[2:4]}-1")
+column_names <- str_replace(column_names, "2", "")
+column_names[5:10] <- glue::glue("{column_names[5:10]}-2")
+colnames(population_mobile_ownership_df) <-  column_names
+population_mobile_ownership_df_long <- pivot_longer(population_mobile_ownership_df, cols = 2:10, 
+                                                    names_to = c("population","mobile_ownership"), 
+                                                    names_pattern = "(.*)-(\\d)")
+```
+
+```{r}
+pages <- c(475:481)
+population_conventional_ownership <- extract_tables(file = file_location1, pages = pages)
+```
+
+```{r}
+population_conventional_ownership_df <- map_df(.x = population_conventional_ownership, .f = ~slice(as.data.frame(.x, stringsAsFactors = F), -c(1:4)))
+
+# split the column
+population_conventional_ownership_df <- separate(population_conventional_ownership_df, col = V6, into = c("atv","internet","bicycle"), sep = " ")
+
+#column names
+population_conventional_ownership_df <- rename(population_conventional_ownership_df, "county/sub-county" = V1, 
+                                               "households" = V2, 
+                                         "radio" = V3, "laptop_tablet" = V4, "ftv" = V5, 
+                                         "motor_cycle" = V7, "refrigerator" = V8, "car" = V9, 
+                                         "truck/lorry/bus/three_wheeler" = V10, "tuk_tuk" = V11)
+```
+
+```{r}
+write_csv(x = population_conventional_ownership_df, path = ".\\tidy data\\t2.36_population_household_assets.csv")
+```
+
+
+

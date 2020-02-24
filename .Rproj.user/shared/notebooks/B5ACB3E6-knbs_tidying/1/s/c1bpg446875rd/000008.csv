@@ -1,0 +1,2 @@
+"0","pages <- c(438:444)"
+"0","population_mobile_ownership <- extract_tables(file = file_location1, pages = pages)"

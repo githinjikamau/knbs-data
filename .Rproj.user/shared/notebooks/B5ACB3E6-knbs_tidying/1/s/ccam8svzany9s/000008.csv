@@ -1,0 +1,4 @@
+"0","map_df(.x = population_school_df, ~str_replace(string = ., pattern = ""-"", NA_character_)) %>% foo
+"
+"2","Error in foo(.) : could not find function ""foo""
+"

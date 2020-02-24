@@ -1,0 +1,7 @@
+"0","population_by_sex_county <- population_by_sex_county %>% 
+                            filter(!is.na(Male)) %>% 
+                            select(-V3) %>% 
+                            rename(Female = V3, Intersex = V4, Total = V5)
+"
+"2","Error in .f(.x[[i]], ...) : object 'V3' not found
+"

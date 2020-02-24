@@ -1,0 +1,8 @@
+"0","foo <- pivot_longer(population_mobile_ownership_df, cols = 2:10, names_to = c(""Number"",""mobile_ownership""), 
+                    names_pattern = ""(.*)-(\\d)"", values_to = ""Number"")
+"
+"2","Error: Failed to create output due to bad names.
+Choose another strategy with `names_repair`
+Parents:
+ -Names must be unique.
+"

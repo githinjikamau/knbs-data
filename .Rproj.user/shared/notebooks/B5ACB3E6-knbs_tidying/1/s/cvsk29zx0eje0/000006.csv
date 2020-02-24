@@ -1,0 +1,3 @@
+"0","# write to csv"
+"0",""
+"0","write_csv(x = population_by_sex_county, path = "".\\tidy data\\population_by_sex_county.csv"")"

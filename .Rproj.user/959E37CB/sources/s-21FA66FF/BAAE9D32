@@ -1,0 +1,33 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1582563188670.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "BAAE9D32",
+    "lastKnownWriteTime" : 1582555675,
+    "last_content_update" : 1582563188670,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "965898EC",
+        "caption" : "population_conventional_ownership_df",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=population_conventional_ownership_df&cache_key=965898EC",
+        "displayedObservations" : 395,
+        "environment" : "",
+        "expression" : "population_conventional_ownership_df",
+        "object" : "population_conventional_ownership_df",
+        "preview" : 0,
+        "totalObservations" : 395,
+        "variables" : 7
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

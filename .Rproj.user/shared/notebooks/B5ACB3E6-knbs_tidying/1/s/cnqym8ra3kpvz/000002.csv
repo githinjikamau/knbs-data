@@ -1,0 +1,2 @@
+"0","pages <- c(475:481)"
+"0","population_conventional_ownership <- extract_tables(file = file_location1, pages = pages)"
