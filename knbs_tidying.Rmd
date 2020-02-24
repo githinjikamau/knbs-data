@@ -1,18 +1,18 @@
 ---
-title: "R Notebook"
-output: html_notebook
+title: "Tidying KNBS Data"
+author: "Brian Githinji"
+date: "24/02/2020"
+output: github_document
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
 
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
 
 ```{r load libraries}
 library(tidyverse)
 library(tabulizer)
 ```
 
-```{r}
+```{r eval=F}
 # Extract table on page
 
 file_location <- "./census reports/VOLUME 1 KPHC 2019.pdf"
@@ -21,7 +21,7 @@ population_sex_county <- extract_areas(file = file_location, pages = 17, guess =
 # population_by_sex_county <- extract_areas(file = file_location, pages = 17, guess = FALSE)
 ```
 
-```{r}
+```{r, eval=F}
 # convert to a data.frame
 population_by_sex_county <- as.data.frame(population_sex_county[[1]])
 
@@ -40,7 +40,7 @@ population_by_sex_county <- population_by_sex_county %>%
 ```
 
 
-```{r}
+```{r, eval=F}
 # write to csv
 
 write_csv(x = population_by_sex_county, path = ".\\tidy data\\population_by_sex_county.csv")
@@ -99,6 +99,11 @@ population_mobile_ownership_df <- rename(population_mobile_ownership_df, "county
                                          "per_cent_female" = V7)
 
 ```
+
+```{r, eval=F}
+write_csv(x = population_mobile_ownership_df, path = ".\\tidy data\\t2.32_population_mobile_ownership.csv")
+```
+
 
 ```{r eval=FALSE}
 # Convert from wide to long
