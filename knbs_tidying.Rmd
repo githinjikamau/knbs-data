@@ -14,7 +14,7 @@ library(tabulizer)
 
 ```{r eval=F}
 # Extract table on page
-
+# note that this launches an interactive page so that you can select the area of the table to be scrapped.
 file_location <- "./census reports/VOLUME 1 KPHC 2019.pdf"
 population_sex_county <- extract_areas(file = file_location, pages = 17, guess = FALSE)
 
