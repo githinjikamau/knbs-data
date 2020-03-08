@@ -12,10 +12,15 @@ library(tidyverse)
 library(tabulizer)
 ```
 
+```{r File Locations}
+file_location <- "./census reports/VOLUME 1 KPHC 2019.pdf"
+file_location1 <- "./census reports/VOLUME IV KPHC 2019.pdf"
+```
+
+
 ```{r eval=F}
 # Extract table on page
 # note that this launches an interactive page so that you can select the area of the table to be scrapped.
-file_location <- "./census reports/VOLUME 1 KPHC 2019.pdf"
 population_sex_county <- extract_areas(file = file_location, pages = 17, guess = FALSE)
 
 # population_by_sex_county <- extract_areas(file = file_location, pages = 17, guess = FALSE)
@@ -46,10 +51,10 @@ population_by_sex_county <- population_by_sex_county %>%
 write_csv(x = population_by_sex_county, path = ".\\tidy data\\population_by_sex_county.csv")
 ```
 
-### Volume IV Data
+# Volume IV Data
+### Population Level of Education Data
 
 ```{r}
-file_location1 <- "./census reports/VOLUME IV KPHC 2019.pdf"
 pages <- c(57:87)
 population_school <- extract_tables(file = file_location1, pages = pages)
 ```
@@ -78,7 +83,7 @@ Next steps would be to scrape the reference table of the counties and subcountie
 write_csv(x = population_school_df, path = ".\\tidy data\\t2.3_population_currently_attending_school.csv")
 ```
 
-## Scrape table 
+## Mobile Ownership Population Data
 
 ```{r}
 pages <- c(438:444)
@@ -117,6 +122,8 @@ population_mobile_ownership_df_long <- pivot_longer(population_mobile_ownership_
                                                     names_pattern = "(.*)-(\\d)")
 ```
 
+### COnventional Asses Ownership Population Data
+
 ```{r}
 pages <- c(475:481)
 population_conventional_ownership <- extract_tables(file = file_location1, pages = pages)
@@ -138,6 +145,64 @@ population_conventional_ownership_df <- rename(population_conventional_ownership
 
 ```{r}
 write_csv(x = population_conventional_ownership_df, path = ".\\tidy data\\t2.36_population_household_assets.csv")
+```
+
+### Cooking Fuel Population Data
+
+```{r}
+pages <- c(343:350)
+population_cooking_fuel <- extract_tables(file = file_location1, pages = pages)
+```
+
+
+```{r}
+population_cooking_fuel_df <- map_df(.x = population_cooking_fuel, 
+                                     .f = ~slice(as.data.frame(.x, stringsAsFactors = F), -c(1:5)))
+# Get the column names
+column_names <- population_cooking_fuel[[1]][5,]
+column_names[1:2] <- c("county", "households")
+column_names[5] <- ("lpg_biogas_firewood")
+column_names[8] <- "not_stated"
+population_cooking_fuel_df<- `colnames<-`(population_cooking_fuel_df, column_names)
+
+# split the column
+population_cooking_fuel_df <- separate(population_cooking_fuel_df, col = lpg_biogas_firewood, into = c("lpg","biogas","firewood"), sep = " ")
+
+```
+
+```{r}
+write_csv(x = population_cooking_fuel_df, path = ".\\tidy data\\t2.18_population_cooking_fuel.csv")
+```
+
+
+### County & Sub-COunty Reference Table
+
+```{r}
+pages <- c(20:22)
+reference_table <- extract_tables(file = file_location1, pages = pages)
+```
+
+
+```{r}
+# get column names
+column_names <- c("county_code", "county_name", "sub-county_code","sub-county_name")
+
+# tidy the data
+reference_table_df1 <- map_df(.x = reference_table, 
+                                     .f = ~slice(as.data.frame(.x, stringsAsFactors = F), -c(1:2)) %>% 
+                               select(1:4))
+reference_table_df2 <- map_df(.x = reference_table, 
+                                     .f = ~slice(as.data.frame(.x, stringsAsFactors = F), -c(1:2)) %>% 
+                               select(5:8))
+
+reference_table_df1<- `colnames<-`(reference_table_df1, column_names)
+reference_table_df2<- `colnames<-`(reference_table_df2, column_names)
+
+reference_table_df <- bind_rows(reference_table_df1, reference_table_df2)
+```
+
+```{r}
+write_csv(x = reference_table_df, path = ".\\tidy data\\t1.9_counties_and_sub-counties.csv")
 ```
 
 
